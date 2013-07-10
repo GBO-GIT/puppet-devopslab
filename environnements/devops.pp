@@ -1,8 +1,10 @@
 node ip-172-31-0-24 {
-  class { 'jenkins':
-    config_hash => {
-      'PORT' => { 'value' => '9090' }, 'AJP_PORT' => { 'value' => '9009' }
-    }
+  apt::source { 'puppetlabs':
+    location   => 'http://apt.puppetlabs.com',
+    repos      => ['main', 'dependencies'],
+    key        => '4BD6EC30',
+    key_server => 'pgp.mit.edu',
   }
+  class { 'jenkins': }
   jenkins::plugin { 'git': }
 }
