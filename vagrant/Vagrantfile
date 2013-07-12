@@ -1,0 +1,23 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+Vagrant.configure("2") do |config|
+
+  config.vm.box = "devops2"
+  config.vm.box_url = " http://puppet-vagrant-boxes.puppetlabs.com/ubuntu-server-12042-x64-vbox4210.box"
+
+  config.vm.hostname = "ip-172-31-0-24.eu-west-1.compute.internal"
+
+  config.vm.network :forwarded_port, guest: 8080, host: 8080
+  config.vm.network :forwarded_port, guest: 80, host: 8181
+
+  config.vm.synced_folder "../environnements/", "/tmp/vagrant-puppet/environnements"
+  config.vm.provision :puppet do |puppet|
+	puppet.puppet_node = "ip-172-31-0-24.eu-west-1.compute.internal"
+    puppet.manifests_path = "../manifests"
+    puppet.module_path = "../modules"
+    puppet.manifest_file  = "site.pp"
+  end
+
+
+end
