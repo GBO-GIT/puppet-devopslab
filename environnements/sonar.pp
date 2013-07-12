@@ -14,9 +14,9 @@ node 'ip-172-31-42-43.eu-west-1.compute.internal' {
   }
   package { 'sonar':
     ensure       => present,
-    require      => Apt::source['sonar'],
+    require      => apt::source['sonar'],
   }
-  package { 'sonar':
+  service { 'sonar':
     ensure       => running,
     require      => Package['sonar'],
   }
