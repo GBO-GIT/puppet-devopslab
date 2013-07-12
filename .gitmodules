@@ -7,3 +7,12 @@
 [submodule "modules/stdlib"]
 	path = modules/stdlib
 	url = https://github.com/puppetlabs/puppetlabs-stdlib.git
+[submodule "modules/maven"]
+	path = modules/maven
+	url = https://github.com/maestrodev/puppet-maven
+[submodule "modules/wget"]
+	path = modules/wget
+	url = https://github.com/maestrodev/puppet-wget
+[submodule "modules/sonar"]
+	path = modules/sonar
+	url = https://github.com/maestrodev/puppet-sonar
