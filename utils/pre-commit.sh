@@ -18,7 +18,6 @@ else
     cd `dirname $0`
 fi
 curdir=`pwd`
-echo "curdir=${curdir}"
 cd ${initdir}
 
 . ${curdir}/functions.sh || exit 1
