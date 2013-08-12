@@ -41,6 +41,16 @@ isInSubmodule()
     fi
 }
 
+_log ()
+{
+    echo "`date -Iseconds` - $*"
+}
+
+_error ()
+{
+    _log "ERROR: $*"
+    exit 1
+}
 
 lint ()
 {

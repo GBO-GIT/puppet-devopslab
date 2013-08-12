@@ -1,0 +1,46 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+Vagrant.configure("2") do |config|
+
+  config.vm.box_url = "http://puppet-vagrant-boxes.puppetlabs.com/ubuntu-server-12042-x64-vbox4210.box"
+  
+  config.vm.synced_folder "../../hieradata/", "/etc/puppet/hieradata"
+  config.vm.synced_folder "../../utils/", "/tmp/vagrant-puppet/utils"
+
+  config.vm.provision :shell, :inline => "sh /tmp/vagrant-puppet/utils/upgrade_puppet.sh"
+  
+  config.vm.define :lab_devops do |lab_devops|
+    lab_devops.vm.box = "lab_devops"
+    lab_devops.vm.hostname = "ip-172-31-0-24.eu-west-1.compute.internal"
+
+    lab_devops.vm.network :private_network, ip: "192.168.2.2"
+    lab_devops.vm.network :forwarded_port, guest: 8080, host: 8080
+
+    lab_devops.vm.provision :puppet do |puppet|
+      puppet.puppet_node = lab_devops.vm.hostname
+      puppet.manifests_path = "../../manifests"
+      puppet.module_path = "../../modules"
+      puppet.manifest_file  = "site.pp"
+      puppet.options = "--hiera_config /etc/puppet/hieradata/hiera.yaml"
+    end
+  end
+  
+  config.vm.define :lab_sonar do |lab_sonar|
+    lab_sonar.vm.box = "lab_sonar"
+    lab_sonar.vm.hostname = "ip-172-31-42-43.eu-west-1.compute.internal"
+
+    lab_sonar.vm.network :private_network, ip: "192.168.2.3"
+    lab_sonar.vm.network :forwarded_port, guest: 9000, host: 9000
+
+    lab_sonar.vm.provision :puppet do |puppet|
+      puppet.puppet_node = lab_sonar.vm.hostname
+      puppet.manifests_path = "../../manifests"
+      puppet.module_path = "../../modules"
+      puppet.manifest_file  = "site.pp"
+      puppet.options = "--hiera_config /etc/puppet/hieradata/hiera.yaml"
+    end
+  end
+
+
+end
