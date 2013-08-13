@@ -1,0 +1,97 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+Vagrant.configure("2") do |config|
+
+  # Before committing, please ensure those variables are set to these values
+  $aws_access_key_id="YOUR KEY"
+  $aws_secret_access_key="YOUR SECRET KEY"
+  $ssh_private_key_path = "YOUR LOCAL KEY FILE"
+
+  config.vm.box_url = "https://github.com/mitchellh/vagrant-aws/raw/master/dummy.box"
+
+  config.vm.synced_folder "../../hieradata/", "/etc/puppet/hieradata"
+  config.vm.synced_folder "../../utils/", "/tmp/vagrant-puppet/utils"
+
+  config.vm.provision :shell, :inline => "sh /tmp/vagrant-puppet/utils/upgrade_puppet.sh"
+
+  config.vm.define :lab_devops do |lab_devops|
+    lab_devops.vm.box = "lab_devops"
+    # setting of hostname not supported by aws
+    lab_devops.vm.hostname = "ip-172-31-0-24.eu-west-1.compute.internal"
+    lab_devops.vm.provision :shell do |s|
+      s.inline = "sh /tmp/vagrant-puppet/utils/force_hostname.sh $1"
+      s.args = lab_devops.vm.hostname
+    end
+
+    # Network not supported by vagrant-aws
+    #lab_devops.vm.network :private_network, ip: "192.168.2.2"
+    #lab_devops.vm.network :forwarded_port, guest: 8080, host: 8080
+
+    lab_devops.vm.provision :puppet do |puppet|
+      puppet.puppet_node = lab_devops.vm.hostname
+      puppet.manifests_path = "../../manifests"
+      puppet.module_path = "../../modules"
+      puppet.manifest_file  = "site.pp"
+      puppet.options = "--hiera_config /etc/puppet/hieradata/hiera.yaml"
+    end
+
+    lab_devops.vm.provider :aws do |aws, override|
+      aws.access_key_id = $aws_access_key_id
+      aws.secret_access_key = $aws_secret_access_key
+      aws.keypair_name = "devops"
+      aws.instance_type = "t1.micro"
+
+      aws.ami = "ami-ce7b6fba"
+      aws.region = "eu-west-1"
+
+      aws.security_groups = ["default", "puppet_agent", "devops"]
+      aws.tags = {
+        'Name' => lab_devops.vm.box
+      }
+
+      override.ssh.username = "ubuntu"
+      override.ssh.private_key_path = $ssh_private_key_path
+    end
+  end
+
+  config.vm.define :lab_sonar do |lab_sonar|
+    lab_sonar.vm.box = "lab_sonar"
+    # setting of hostname not supported by aws
+    lab_sonar.vm.hostname = "ip-172-31-42-43.eu-west-1.compute.internal"
+    lab_sonar.vm.provision :shell do |s|
+      s.inline = "sh /tmp/vagrant-puppet/utils/force_hostname.sh $1"
+      s.args = lab_sonar.vm.hostname
+    end
+
+    # Network not supported by vagrant-aws
+    #lab_sonar.vm.network :private_network, ip: "192.168.2.3"
+    #lab_sonar.vm.network :forwarded_port, guest: 9000, host: 9000
+
+    lab_sonar.vm.provision :puppet do |puppet|
+      puppet.puppet_node = lab_sonar.vm.hostname
+      puppet.manifests_path = "../../manifests"
+      puppet.module_path = "../../modules"
+      puppet.manifest_file  = "site.pp"
+      puppet.options = "--hiera_config /etc/puppet/hieradata/hiera.yaml"
+    end
+
+    lab_sonar.vm.provider :aws do |aws, override|
+      aws.access_key_id = $aws_access_key_id
+      aws.secret_access_key = $aws_secret_access_key
+      aws.keypair_name = "devops"
+      aws.instance_type = "t1.micro"
+
+      aws.ami = "ami-ce7b6fba"
+      aws.region = "eu-west-1"
+
+      aws.security_groups = ["default", "puppet_agent", "sonar"]
+      aws.tags = {
+        'Name' => lab_sonar.vm.box
+      }
+      override.ssh.username = "ubuntu"
+      override.ssh.private_key_path = $ssh_private_key_path
+    end
+  end
+
+end

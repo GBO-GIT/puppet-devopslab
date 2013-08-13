@@ -68,3 +68,28 @@ validate ()
 {
     puppet parser validate $1
 }
+
+has_trailing_space ()
+{
+    if [ -f "$1" ]
+    then
+        if [ -n "`sed 's/ [ ]*$/GOTCHA/' $1 | grep -e 'GOTCHA$'`" ]
+        then
+            return 1
+        else
+            return 0
+        fi
+    else
+        return 2
+    fi
+}
+
+trim ()
+{
+    if [ -f "$1" ]
+    then
+        tmp_file=/tmp/`basename "$1"`_$$
+        perms=`stat --printf='%a' "$1"`
+        sed 's/ [ ]*$//' "$1" > "${tmp_file}" && mv "${tmp_file}" "$1" && chmod ${perms} "$1"
+    fi
+}

@@ -17,17 +17,26 @@ Prerequisites on your VM are:
 
  - puppet >= v3.2.3
  - hiera >= v1.2.1
- 
-With vagrant, prerequisites on your host machine are
+
+With vagrant, prerequisites on your host machine are:
 
  - vagrant >= v1.2.6
+ - vagrant-aws >= v1.2.2 (if deploying on amazon)
 
 # Deploying
-## With vagrant and virtuabox
+## With vagrant and virtualbox
 
-    cd vagrant/virtuabox
+    cd vagrant/virtualbox
     # Launch VM
     vagrant up {box}
+    # Deploy changes on a launched VM
+    vagrant provision {box}
+
+## With vagrant and amazon
+
+    cd vagrant/aws
+    # Launch VM
+    vagrant up {box} --provider=aws
     # Deploy changes on a launched VM
     vagrant provision {box}
 

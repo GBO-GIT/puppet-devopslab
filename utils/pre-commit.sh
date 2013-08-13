@@ -86,17 +86,17 @@ for file in `git diff --name-only --cached | grep 'Vagrantfile'`
 do
     if [ -f $file ]
     then
-        if [ -n "`grep 'access_key_id' $file | sed -e 's/^.*=[ ]*"\([^"]*\)".*$/\1/' | grep -v 'YOUR KEY'`" ]
+        if [ -n "`grep 'access_key_id' $file | sed -e 's/^.*=[ ]*["]*\([^"]*\)["]*.*$/\1/' | grep -v 'YOUR KEY' | grep -v '$aws_access_key_id'`" ]
         then
             echo "ERROR: unsecured access_key_id at: $file"
             syntax_is_bad=1
         fi
-        if [ -n "`grep 'secret_access_key' $file | sed -e 's/^.*=[ ]*"\([^"]*\)".*$/\1/' | grep -v 'YOUR SECRET KEY'`" ]
+        if [ -n "`grep 'secret_access_key' $file | sed -e 's/^.*=[ ]*"\([^"]*\)".*$/\1/' | grep -v 'YOUR SECRET KEY' | grep -v '$aws_secret_access_key'`" ]
         then
             echo "ERROR: unsecured secret_access_key at: $file"
             syntax_is_bad=1
         fi
-        if [ -n "`grep 'private_key_path' $file | sed -e 's/^.*=[ ]*"\([^"]*\)".*$/\1/' | grep -v 'YOUR LOCAL KEY FILE'`" ]
+        if [ -n "`grep 'private_key_path' $file | sed -e 's/^.*=[ ]*"\([^"]*\)".*$/\1/' | grep -v 'YOUR LOCAL KEY FILE' | grep -v '$ssh_private_key_path'`" ]
         then
             echo "ERROR: unsecured private_key_path at: $file"
             syntax_is_bad=1
