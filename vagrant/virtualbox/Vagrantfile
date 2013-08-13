@@ -4,12 +4,12 @@
 Vagrant.configure("2") do |config|
 
   config.vm.box_url = "http://puppet-vagrant-boxes.puppetlabs.com/ubuntu-server-12042-x64-vbox4210.box"
-  
+
   config.vm.synced_folder "../../hieradata/", "/etc/puppet/hieradata"
   config.vm.synced_folder "../../utils/", "/tmp/vagrant-puppet/utils"
 
   config.vm.provision :shell, :inline => "sh /tmp/vagrant-puppet/utils/upgrade_puppet.sh"
-  
+
   config.vm.define :lab_devops do |lab_devops|
     lab_devops.vm.box = "lab_devops"
     lab_devops.vm.hostname = "ip-172-31-0-24.eu-west-1.compute.internal"
@@ -25,7 +25,7 @@ Vagrant.configure("2") do |config|
       puppet.options = "--hiera_config /etc/puppet/hieradata/hiera.yaml"
     end
   end
-  
+
   config.vm.define :lab_sonar do |lab_sonar|
     lab_sonar.vm.box = "lab_sonar"
     lab_sonar.vm.hostname = "ip-172-31-42-43.eu-west-1.compute.internal"

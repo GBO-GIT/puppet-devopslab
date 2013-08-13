@@ -1,5 +1,6 @@
 #!/bin/sh
 # pre-commit git hook to check the validity of a puppet manifest
+# It also ensure no AWS credentials are sent in git repository
 #
 # Prerequisites:
 #   gem install puppet-lint puppet
@@ -77,6 +78,66 @@ then
     exit 1
 else
     echo "Everything looks good."
+fi
+
+echo ""
+echo "### Checking for security credentials ###"
+for file in `git diff --name-only --cached | grep 'Vagrantfile'`
+do
+    if [ -f $file ]
+    then
+        if [ -n "`grep 'access_key_id' $file | sed -e 's/^.*=[ ]*"\([^"]*\)".*$/\1/' | grep -v 'YOUR KEY'`" ]
+        then
+            echo "ERROR: unsecured access_key_id at: $file"
+            syntax_is_bad=1
+        fi
+        if [ -n "`grep 'secret_access_key' $file | sed -e 's/^.*=[ ]*"\([^"]*\)".*$/\1/' | grep -v 'YOUR SECRET KEY'`" ]
+        then
+            echo "ERROR: unsecured secret_access_key at: $file"
+            syntax_is_bad=1
+        fi
+        if [ -n "`grep 'private_key_path' $file | sed -e 's/^.*=[ ]*"\([^"]*\)".*$/\1/' | grep -v 'YOUR LOCAL KEY FILE'`" ]
+        then
+            echo "ERROR: unsecured private_key_path at: $file"
+            syntax_is_bad=1
+        fi
+    fi
+done
+echo ""
+
+if [ $syntax_is_bad -eq 1 ]
+then
+    echo "FATAL: Don't put any credentials in your files"
+    echo "Bailing"
+    exit 1
+else
+    echo "No credentials detected => OK"
+fi
+
+echo ""
+echo "### Trim files ###"
+for file in `git diff --name-only --cached | grep -E 'Vagrantfile|\.(erb|pp|sh|md|yaml|json)'`
+do
+    if [ -f $file ]
+    then
+        has_trailing_space $file
+        if [ $? -eq 1 ]
+        then
+            echo "INFO: Remove trailing space from $file"
+            syntax_is_bad=1
+            trim $file
+        fi
+    fi
+done
+echo ""
+
+if [ $syntax_is_bad -eq 1 ]
+then
+    echo "FATAL: Some files have been trimed. Please add them and commit again."
+    echo "Bailing"
+    exit 1
+else
+    echo "Trim is good"
 fi
 exit 0
 

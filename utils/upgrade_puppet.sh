@@ -2,10 +2,10 @@
 # This shell install lastest version of puppet
 # It's made to be runned as a vagrant provisionner
 # ---------
-# Currently only tested on Debian based systems 
+# Currently only tested on Debian based systems
 
 _install_pkg ()
-{ 
+{
     _log "Installing $*"
     case "${vm_os}" in
         "Debian"|"Ubuntu")
