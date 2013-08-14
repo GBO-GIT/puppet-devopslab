@@ -4,39 +4,11 @@
 # ---------
 # Currently only tested on Debian based systems
 
-_install_pkg ()
-{
-    _log "Installing $*"
-    case "${vm_os}" in
-        "Debian"|"Ubuntu")
-        apt-get install -y $* || exit $?
-        ;;
-    "Redhat"|"CentOS"|"Fedora")
-        yum install -y $* || exit $?
-        ;;
-    esac
-}
-
-_update_pkglist ()
-{
-    case "${vm_os}" in
-        "Debian"|"Ubuntu")
-            apt-get update 2>&1 >> "${update_log}" || exit $?
-            ;;
-        "Redhat"|"CentOS"|"Fedora")
-            yum check-update 2>&1 >> "${update_log}" || exit $?
-            ;;
-        *)
-            _error "OS unsupported by `basename $0 .sh`"
-            ;;
-    esac
-}
-
 _install_pkglist ()
 {
     case "${vm_os}" in
         "Debian"|"Ubuntu")
-            DEB="puppetlabs-release-${DISTRIB_CODENAME}.deb"
+            DEB="puppetlabs-release-${distrib_codename}.deb"
             DEB_PROVIDES="/etc/apt/sources.list.d/puppetlabs.list"
             if [ ! -e $DEB_PROVIDES ]
             then
@@ -74,26 +46,16 @@ cd ${initdir}
 
 test "`id -u`" = "0" || _error "you need to be root (Are you sure you are on a VM?)"
 
-TODAY=`date +%Y%m%d`
-status_file=/tmp/upgrade_puppet_$$.status
-log_file=/tmp/upgrade_puppet.log
-update_log=/tmp/upgrade_puppet_${TODAY}.log
+status_file=/tmp/`basename $0 .sh`_$$.status
+log_file=/tmp/`basename $0 .sh`.log
 
 ((
 _log "--------------------"
 _log "Will upgrade (if necessary) puppet"
 
-vm_os=`lsb_release -is 2>/dev/null`
-DISTRIB_CODENAME=`lsb_release --codename --short 2>/dev/null`
-
+_vm_info
 _install_pkglist
-if [ ! -f "${update_log}" ]
-then
-    _log "updating packages list"
-    _update_pkglist
-else
-    _log "Packages list already updated today"
-fi
+_update_pkglist
 _install_pkg "puppet"
 _log "Done"
 _log "--------------------"

@@ -41,15 +41,13 @@ cd ${initdir}
 
 test "`id -u`" = "0" || _error "you need to be root (Are you sure you are on a VM?)"
 
-status_file=/tmp/force_hostname_$$.status
-log_file=/tmp/force_hostname.log
+status_file=/tmp/`basename $0 .sh`_$$.status
+log_file=/tmp/`basename $0 .sh`.log
 ((
 _log "--------------------"
 _log "Will force (if necessary) hostname"
 
-vm_os=`lsb_release -is 2>/dev/null`
-DISTRIB_CODENAME=`lsb_release --codename --short 2>/dev/null`
-vm_current_hostname=`hostname`
+_vm_info
 vm_hostname=$1
 
 if [ "${vm_hostname}" != "${vm_current_hostname}" ]
@@ -68,3 +66,4 @@ exit 0
 exit_value=`cat ${status_file}`
 rm -f ${status_file}
 exit ${exit_value}
+

@@ -93,3 +93,46 @@ trim ()
         sed 's/ [ ]*$//' "$1" > "${tmp_file}" && mv "${tmp_file}" "$1" && chmod ${perms} "$1"
     fi
 }
+
+_vm_info ()
+{
+    vm_os=`lsb_release -is 2>/dev/null`
+    distrib_codename=`lsb_release --codename --short 2>/dev/null`
+    vm_current_hostname=`hostname`
+}
+
+_install_pkg ()
+{
+    _log "Installing $*"
+    case "${vm_os}" in
+        "Debian"|"Ubuntu")
+        apt-get install -y $* || exit $?
+        ;;
+    "Redhat"|"CentOS"|"Fedora")
+        yum install -y $* || exit $?
+        ;;
+    esac
+}
+
+_update_pkglist ()
+{
+    update_log=/tmp/upgrade_puppet_`date +%Y%m%d`.log
+    if [ ! -f "${update_log}" ]
+    then
+        _log "updating packages list"
+        case "${vm_os}" in
+            "Debian"|"Ubuntu")
+                apt-get update 2>&1 >> "${update_log}" || exit $?
+                ;;
+            "Redhat"|"CentOS"|"Fedora")
+                yum check-update 2>&1 >> "${update_log}" || exit $?
+                ;;
+            *)
+                _error "OS unsupported by `basename $0 .sh`"
+                ;;
+        esac
+    else
+        _log "Packages list already updated today"
+    fi
+}
+

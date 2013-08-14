@@ -9,6 +9,7 @@ Vagrant.configure("2") do |config|
   config.vm.synced_folder "../../utils/", "/tmp/vagrant-puppet/utils"
 
   config.vm.provision :shell, :inline => "sh /tmp/vagrant-puppet/utils/upgrade_puppet.sh"
+  config.vm.provision :shell, :inline => "sh /tmp/vagrant-puppet/utils/update_hosts.sh /vagrant/Vagrantfile"
 
   config.vm.define :lab_devops do |lab_devops|
     lab_devops.vm.box = "lab_devops"
