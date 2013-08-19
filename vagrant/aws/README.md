@@ -5,7 +5,9 @@ Vagrantfile for amazon aws
 
 This vagrantfile can deploy an aws instance.
 
-Please, remove any secret credentials before committing this file.
+Please, DO NOT put any secret credentials in this file.
+
+Secrets (and so personnal) informations must be initialized in a 'aws.yaml' file, stored in current directory (check 'aws.yaml.example').
 
 # Prerequisites
 
@@ -64,3 +66,4 @@ Modifications on the instance are not automatically reported in your local folde
 ## No network configuration
 
 Network configuration is not supported.
+
